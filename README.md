@@ -23,4 +23,3 @@ An educational presentation that explains the photoelectric effect, the groundbr
 - Physics simulations references
 - Educational design principles
 
-## 📁 Repository Structure
