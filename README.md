@@ -19,7 +19,7 @@ An educational presentation that explains the photoelectric effect, the groundbr
 - Connect quantum principles to everyday technology
 
 ## 🛠️ Built With
-- Presentation software (Canva/Google Slides/PowerPoint)
+- PowerPoint
 - Physics simulations references
 - Educational design principles
 
