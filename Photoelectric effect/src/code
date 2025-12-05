@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Photoelectric Effect Calculator</title>
+
+<style>
+:root{
+  --accent:#00d3ee;
+  --deep:#006b7a;
+  --bg1:#001f3f;
+}
+*{box-sizing:border-box}
+body {
+  font-family: Inter, Arial, sans-serif;
+  padding: 30px;
+  background: linear-gradient(-45deg, #071428, #003a5d, #006c9e, #002b45);
+  background-size: 400% 400%;
+  animation: gradientShift 18s ease infinite;
+  color: #eaf6fb;
+  min-height:100vh;
+}
+
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+.container-wrap{
+  max-width:1100px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns: 1fr 420px;
+  gap:28px;
+  align-items:start;
+}
+
+/* LEFT: Interactive stage with atom + photons + metal */
+.stage{
+  position:relative;
+  min-height:600px;
+  border-radius:18px;
+  padding:22px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  overflow:hidden;
+}
+
+/* Metal surface */
+.metal {
+  position:absolute;
+  left:18px;
+  bottom:40px;
+  width:160px;
+  height:220px;
+  background: linear-gradient(180deg,#a0bfc9,#6da2ad);
+  border-radius:8px;
+  box-shadow: inset 0 6px 14px rgba(255,255,255,0.06);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:var(--deep);
+  font-weight:700;
+}
+.metal::before{content:"Metal"; position:absolute; top:8px; color:rgba(0,0,0,0.25); font-size:0.9rem}
+
+/* Photon beams */
+.photon-beam{position:absolute; left:200px; top:120px; width:14px; height:6px; background:linear-gradient(90deg, rgba(0,230,255,0.9), rgba(0,180,255,0.6)); border-radius:4px; box-shadow:0 0 16px rgba(0,230,255,0.6); transform-origin:left center; animation:beamFly 2s linear infinite}
+@keyframes beamFly{0%{transform:translateX(0) scaleX(0.3); opacity:0}10%{opacity:1}60%{transform:translateX(580px) scaleX(1)}100%{opacity:0}}
+
+/* Ejected electron (created when beam hits) */
+.ejected{position:absolute; left:170px; bottom:220px; width:12px; height:12px; border-radius:50%; background:radial-gradient(circle,#ffffff,#00d3ee); box-shadow:0 0 14px #00f0ff,0 0 30px rgba(0,210,238,0.45);}
+.ejected.animate{
+  animation: eject 1.5s ease-out forwards;
+}
+@keyframes eject{0%{transform:translate(0,0) scale(1)}50%{transform:translate(260px,-160px) scale(1.05)}100%{transform:translate(420px,-240px) scale(0.9); opacity:0}}
+
+/* Center Atom */
+.atom{
+  position:absolute;
+  right:140px;
+  top:60px;
+  width:320px;
+  height:320px;
+  display:flex;justify-content:center;align-items:center;
+}
+.nucleus{
+  width:48px;height:48px;border-radius:50%;background:radial-gradient(circle,#ffd36b,#ff8a00);box-shadow:0 0 30px rgba(255,170,80,0.9), inset 0 -6px 14px rgba(0,0,0,0.12);
+  position:relative; z-index:30;
+}
+
+/* multiple electron shells */
+.shell{position:absolute;border-radius:50%;border:2px solid rgba(255,255,255,0.06);}
+.shell.s1{width:80px;height:80px;animation:spin1 6s linear infinite}
+.shell.s2{width:140px;height:140px;animation:spin2 10s linear infinite}
+.shell.s3{width:220px;height:220px;animation:spin3 14s linear infinite}
+
+@keyframes spin1{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes spin2{from{transform:rotate(360deg)}to{transform:rotate(0deg)}}
+@keyframes spin3{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+.electron-glow{position:absolute; width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#bffeff,#00d3ee); box-shadow:0 0 14px #00f6ff,0 0 30px rgba(0,210,238,0.45)}
+/* placed along shell using transform rotate */
+.electron-glow.i1{transform:translate(-40px,-6px)}
+.electron-glow.i2{transform:translate(40px,-6px)}
+.electron-glow.i3{transform:translate(0px,38px)}
+.electron-glow.j1{transform:translate(-70px,-6px)}
+.electron-glow.j2{transform:translate(70px,-6px)}
+.electron-glow.j3{transform:translate(-10px,78px)}
+.electron-glow.j4{transform:translate(10px,78px)}
+.electron-glow.k1{transform:translate(-110px,0px)}
+.electron-glow.k2{transform:translate(-40px,90px)}
+.electron-glow.k3{transform:translate(40px,90px)}
+.electron-glow.k4{transform:translate(110px,0px)}
+
+/* small particle trail for atom electrons */
+.electron-glow::after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(0,255,255,0.25);filter:blur(6px);left:4px;top:4px}
+
+/* Right panel: calculator card */
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  padding:22px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.45);
+}
+.card h1{color:var(--accent); text-align:center; margin:6px 0 18px}
+label{display:block; font-weight:600; margin-top:12px; color:#dff7fb}
+input,select{width:100%; padding:10px; margin-top:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.08); background:rgba(0,0,0,0.12); color:#e8fbff}
+input:focus,select:focus{outline:none; box-shadow:0 0 10px rgba(0,200,255,0.18); transform:scale(1.01)}
+
+.result-box{margin-top:14px; padding:14px; border-radius:10px; background:linear-gradient(180deg, rgba(0,0,0,0.13), rgba(255,255,255,0.02)); border-left:4px solid var(--accent)}
+.result-box p{margin:6px 0}
+
+/* Chemistry icons floating discreetly */
+.icon{position:absolute; font-size:22px; color:rgba(255,255,255,0.12)}
+.icon.flask{left:30px; top:20px; transform:rotate(-12deg)}
+.icon.molecule{left:70px; top:60px}
+.icon.dna{left:40px; top:110px}
+
+/* responsive */
+@media (max-width:1000px){.container-wrap{grid-template-columns:1fr; padding-bottom:40px}.atom{right:30px; top:40px; width:260px;height:260px}}
+</style>
+</head>
+<body>
+
+<div class="container-wrap">
+  <!-- LEFT: stage -->
+  <div class="stage">
+    <div class="icon flask">🧪</div>
+    <div class="icon molecule">⚛️</div>
+    <div class="icon dna">🧬</div>
+
+    <!-- Photon beams (visual) -->
+    <div class="photon-beam" style="top:90px; left:40px; animation-delay:0s"></div>
+    <div class="photon-beam" style="top:140px; left:20px; animation-delay:0.5s"></div>
+    <div class="photon-beam" style="top:190px; left:60px; animation-delay:1s"></div>
+
+    <!-- Metal target -->
+    <div class="metal"></div>
+
+    <!-- ejected placeholder - script will clone this when needed -->
+    <div id="ejector" style="display:none"></div>
+
+    <!-- Center Atom -->
+    <div class="atom" aria-hidden="true">
+      <div class="shell s3"></div>
+      <div class="shell s2"></div>
+      <div class="shell s1"></div>
+      <div class="nucleus"></div>
+
+      <!-- electrons on shells (glowing) -->
+      <div class="electron-glow i1"></div>
+      <div class="electron-glow i2"></div>
+      <div class="electron-glow i3"></div>
+
+      <div class="electron-glow j1"></div>
+      <div class="electron-glow j2"></div>
+      <div class="electron-glow j3"></div>
+      <div class="electron-glow j4"></div>
+
+      <div class="electron-glow k1"></div>
+      <div class="electron-glow k2"></div>
+      <div class="electron-glow k3"></div>
+      <div class="electron-glow k4"></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Calculator Card -->
+  <div class="card">
+    <h1>Photoelectric Effect Calculator</h1>
+
+    <label>Input Type:</label>
+    <select id="inputType" onchange="updateFWUnits(); calculateAll();">
+      <option value="freq">Frequency</option>
+      <option value="wave">Wavelength</option>
+    </select>
+
+    <label>Enter Value:</label>
+    <input type="number" id="fwValue" placeholder="Enter frequency or wavelength" oninput="calculateAll()" min="0" />
+    <select id="fwUnit" onchange="calculateAll()"></select>
+
+    <label>Work Function (φ):</label>
+    <input type="number" id="phi" placeholder="Enter work function" oninput="calculateAll()" min="0" />
+    <select id="phi_unit" onchange="calculateAll()">
+      <option value="J">J</option>
+      <option value="kJ">kJ</option>
+      <option value="eV">eV</option>
+    </select>
+
+    <div class="result-box" id="results">Enter values to calculate.</div>
+  </div>
+</div>
+
+<script>
+const h = 6.626e-34; const e = 1.602e-19; const c = 3e8;
+function updateFWUnits(){ const type=document.getElementById('inputType').value; const unit=document.getElementById('fwUnit'); if(type==='freq'){unit.innerHTML=`<option value="Hz">Hz</option><option value="kHz">kHz</option><option value="MHz">MHz</option><option value="GHz">GHz</option>`}else{unit.innerHTML=`<option value="m">m</option><option value="nm">nm</option><option value="pm">pm</option>`}}updateFWUnits();
+function convertEnergy(v,u){ if(u==='kJ') return v*1000; if(u==='eV') return v*e; return v }
+function convertInput(){ let type=document.getElementById('inputType').value; let value=parseFloat(document.getElementById('fwValue').value); let unit=document.getElementById('fwUnit').value; if(isNaN(value)||value<=0) return null; if(type==='freq'){ const scale={Hz:1,kHz:1e3,MHz:1e6,GHz:1e9}; return value*scale[unit]; } const scaleW={m:1,nm:1e-9,pm:1e-12}; return c/(value*scaleW[unit]); }
+
+// create ejected electron visual
+function spawnEjected(){ const stage=document.querySelector('.stage'); const el=document.createElement('div'); el.className='ejected'; // randomize start near metal
+  el.style.left = (30 + Math.random()*120) + 'px'; el.style.bottom = (220 + Math.random()*30) + 'px'; stage.appendChild(el);
+  // trigger animation
+  requestAnimationFrame(()=> el.classList.add('animate'));
+  // remove after animation
+  setTimeout(()=> el.remove(),1600);
+}
+
+function calculateAll(){ const results=document.getElementById('results'); const f=convertInput(); let phi=parseFloat(document.getElementById('phi').value); let phi_unit=document.getElementById('phi_unit').value; if(f==null||isNaN(phi)){ results.innerHTML='Enter values to calculate.'; return; } phi=convertEnergy(phi,phi_unit); const photonEnergy=h*f; const thresholdFreq=phi/h; const thresholdWavelength=c/thresholdFreq; if(photonEnergy<phi){ results.innerHTML=`<p><strong>No emission:</strong> Photon energy too low.</p><p><strong>Threshold f₀:</strong> ${thresholdFreq.toExponential(3)} Hz</p><p><strong>λ₀:</strong> ${thresholdWavelength.toExponential(3)} m</p>`; return; }
+  // display values
+  const kinetic=photonEnergy-phi; const stop=kinetic/e; results.innerHTML=`<p><strong>Photon Energy:</strong> ${photonEnergy.toExponential(3)} J</p><p><strong>Threshold f₀:</strong> ${thresholdFreq.toExponential(3)} Hz</p><p><strong>K.E:</strong> ${kinetic.toExponential(3)} J</p><p><strong>Stopping Potential V₀:</strong> ${stop.toFixed(2)} V</p>`;
+  // spawn visuals proportional to energy (more energy -> more ejected electrons)
+  const count = Math.min(6, 1 + Math.floor((kinetic / (1e-19)))); // rough scaling
+  for(let i=0;i<count;i++){ setTimeout(spawnEjected, 120*i); }
+}
+</script>
+
+</body>
+</html>
